@@ -8,7 +8,8 @@ class SchoolCrawlerTest {
 
     @org.junit.jupiter.api.Test
     void getHttpSchool() {
-        University newUniversity = SchoolCrawler.getHttpSchool(105);
+        int[] testCode = {0};
+        University newUniversity = SchoolCrawler.getHttpSchool(105, testCode);
         System.out.print(newUniversity);
     }
 }

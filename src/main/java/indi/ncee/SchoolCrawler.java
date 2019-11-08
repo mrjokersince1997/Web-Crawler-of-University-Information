@@ -10,22 +10,23 @@ import java.util.regex.Pattern;
 public class SchoolCrawler {
 
     //抓取网页
-    public static University getHttpSchool(int i) {
+    public static University getHttpSchool(int i, int[] flag_over) {
         try {
             //配置URL
             URL myUrl = new URL("https://static-data.eol.cn/www/school/"+ i + "/info.json");
             //配置连接
-            HttpURLConnection mycon = (HttpURLConnection) myUrl.openConnection();
-            mycon.setRequestProperty("user-agent", "Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            mycon.setConnectTimeout(10000);
-            mycon.setReadTimeout(1000);
+            HttpURLConnection myCon = (HttpURLConnection) myUrl.openConnection();
+            myCon.setRequestProperty("user-agent", "Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            myCon.setConnectTimeout(10000);
+            myCon.setReadTimeout(1000);
             //建立连接
-            mycon.connect();
+            myCon.connect();
             //如果连接成功
-            if (mycon.getResponseCode() == 200) {
+            if (myCon.getResponseCode() == 200) {
+                flag_over[0] = 0;
                 //读取返回数据
-                InputStream in = mycon.getInputStream();
-                System.out.print("ID为" + i + "的数据抓取成功，");
+                InputStream in = myCon.getInputStream();
+                System.out.print("ID:" + i + " 数据抓取成功，");
                 int cnt = in.available();
                 byte[] b = new byte[cnt];
                 in.read(b);
@@ -36,16 +37,20 @@ public class SchoolCrawler {
 
                 return un;
             }else{
-                System.out.println("ID为" + i + "的数据抓取失败，数据可能不存在；");
+                flag_over[0]++;
+                System.out.println("ID:" + i + " 数据抓取失败，回复代码：" + myCon.getResponseCode());
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            flag_over[0]++;
+            System.out.println("ID:" + i + " URL无法解析，检查URL格式");
             return null;
         }catch(SocketTimeoutException e){
-            System.out.println("ID为" + i + "的数据访问连接超时，已跳过；");
+            flag_over[0]++;
+            System.out.println("ID:" + i + " 访问超时，检查网络环境");
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            flag_over[0]++;
+            System.out.println("ID:" + i + " 连接请求错误，检查请求头");
             return null;
         }
         return null;
@@ -71,7 +76,7 @@ public class SchoolCrawler {
             String name = unescapeUnicode(matcher.group(1));
             un.setName(name);
         }
-        System.out.println("学校为" + un.getName() + "；");
+        System.out.println("学校：" + un.getName());
         //读取省份ID
         regex = Pattern.compile("\"province_id\":\"(.*?)\",");
         matcher = regex.matcher(str);

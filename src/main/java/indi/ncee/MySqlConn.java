@@ -5,12 +5,13 @@ import java.sql.*;
 
 public class MySqlConn {
 
-    // 配置数据库连接
+    //配置数据库连接
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost:3306/ncee?useSSL=false&serverTimezone=UTC";
     static final String USER = "root";
     static final String PASS = "wdh19970506";
 
+    //向数据库插入数据
     public static void insertData(University[] un){
         Connection conn = null;                //Connection对象：完成客户端与数据库的交互
         PreparedStatement stmt1 = null;         //Statement对象：向数据库发送sql语句(PreparedStatement防恶意注入）
