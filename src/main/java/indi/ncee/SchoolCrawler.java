@@ -31,10 +31,10 @@ public class SchoolCrawler {
                 byte[] b = new byte[cnt];
                 in.read(b);
                 String str = new String(b);
-                //System.out.println(str);
-
+                //Unicode解码汉字
+                str = unescapeUnicode(str);
+                //匹配关键字
                 University un = regExpUniversity(str);
-
                 return un;
             }else{
                 flag_over[0]++;
@@ -73,7 +73,7 @@ public class SchoolCrawler {
         regex = Pattern.compile("\"name\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String name = unescapeUnicode(matcher.group(1));
+            String name = matcher.group(1);
             un.setName(name);
         }
         System.out.println("学校：" + un.getName());
@@ -88,7 +88,7 @@ public class SchoolCrawler {
         regex = Pattern.compile("\"province_name\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String province = unescapeUnicode(matcher.group(1));
+            String province = matcher.group(1);
             un.setProvince(province);
         }
         //读取城市ID
@@ -102,28 +102,28 @@ public class SchoolCrawler {
         regex = Pattern.compile("\"city_name\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String city = unescapeUnicode(matcher.group(1));
+            String city = matcher.group(1);
             un.setCity(city);
         }
         //读取学校类型
         regex = Pattern.compile("\"type_name\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String type = unescapeUnicode(matcher.group(1));
+            String type = matcher.group(1);
             un.setType(type);
         }
         //读取学校隶属
         regex = Pattern.compile("\"belong\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String belong = unescapeUnicode(matcher.group(1));
+            String belong = matcher.group(1);
             un.setBelong(belong);
         }
         //读取学校描述
         regex = Pattern.compile("\"content\":\"(.*?)\",");
         matcher = regex.matcher(str);
         if (matcher.find()) {
-            String content = unescapeUnicode(matcher.group(1));
+            String content = matcher.group(1);
             un.setDescription(content);
         }
         //读取学校级别   6000普通本科 6002独立学院
@@ -191,10 +191,17 @@ public class SchoolCrawler {
 
     //解码unicode
     public static String unescapeUnicode(String str){
-        StringBuffer b=new StringBuffer();
-        Matcher m = Pattern.compile("\\\\u([0-9a-fA-F]{4})").matcher(str);
-        while(m.find())
-            b.append((char)Integer.parseInt(m.group(1),16));
+        StringBuffer b = new StringBuffer();
+        String sub = null;
+        for (int i = 0; i < str.length(); i++) {
+            if(i < (str.length() - 6) && str.charAt(i) == '\\' && str.charAt(i + 1) == 'u'){
+                sub = str.substring(i + 2, i + 6);
+                b.append((char)Integer.parseInt(sub,16));
+                i = i + 5;
+            }else{
+                b.append(str.charAt(i));
+            }
+        }
         return b.toString();
     }
 
